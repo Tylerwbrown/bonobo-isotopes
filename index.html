@@ -6,7 +6,10 @@
   <title>Isotope Power Explorer</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { background: #080c14; }
+    body { background: #020408; }
+    @media (min-width: 768px) {
+      #root { zoom: 1.4; }
+    }
   </style>
   <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
@@ -22,35 +25,35 @@ const isotopes = [
     id: "c14", name: "Carbon-14", symbol: "\u00b9\u2074C", halfLifeYears: 5730,
     avgBetaKeV: 49, atomicMass: 14, decayType: "\u03b2\u207b",
     shielding: "Trivial \u2014 any solid barrier", dangerLevel: 1,
-    color: "#22d3ee", efficiency: 0.03, isRTG: false,
+    color: "#30e8ff", efficiency: 0.03, isRTG: false,
     notes: "Decays to nitrogen-14 (air). Half-life of 5,730 years \u2014 lasts millennia. Abundant nuclear waste byproduct.",
   },
   {
     id: "h3", name: "Tritium", symbol: "\u00b3H", halfLifeYears: 12.3,
     avgBetaKeV: 5.7, atomicMass: 3, decayType: "\u03b2\u207b",
     shielding: "Trivial \u2014 any solid barrier", dangerLevel: 1,
-    color: "#34d399", efficiency: 0.05, isRTG: false,
+    color: "#40ebb0", efficiency: 0.05, isRTG: false,
     notes: "Lowest energy beta emitter. Watch dials, gun sights, commercial betavoltaics. Decays to helium-3.",
   },
   {
     id: "ni63", name: "Nickel-63", symbol: "\u2076\u00b3Ni", halfLifeYears: 100,
     avgBetaKeV: 17, atomicMass: 63, decayType: "\u03b2\u207b",
     shielding: "Trivial \u2014 phone case stops it", dangerLevel: 1,
-    color: "#60a5fa", efficiency: 0.088, isRTG: false,
+    color: "#72baff", efficiency: 0.088, isRTG: false,
     notes: "Safest practical option. Betavolt BV100 uses this. Decays to stable copper-63. Very limited supply.",
   },
   {
     id: "pm147", name: "Promethium-147", symbol: "\u00b9\u2074\u2077Pm", halfLifeYears: 2.62,
     avgBetaKeV: 62, atomicMass: 147, decayType: "\u03b2\u207b",
     shielding: "Thin metal sheet", dangerLevel: 2,
-    color: "#a78bfa", efficiency: 0.10, isRTG: false,
+    color: "#b99dff", efficiency: 0.10, isRTG: false,
     notes: "Early nuclear pacemakers. Decays to samarium-147. Fades within ~10 years. Fission product.",
   },
   {
     id: "sr90", name: "Strontium-90", symbol: "\u2079\u2070Sr", halfLifeYears: 28.8,
     avgBetaKeV: 196, atomicMass: 90, decayType: "\u03b2\u207b (+ \u2079\u2070Y)",
     shielding: "mm of metal + bremsstrahlung", dangerLevel: 3,
-    color: "#f97316", efficiency: 0.08, isRTG: false,
+    color: "#ff8c2e", efficiency: 0.08, isRTG: false,
     effectiveBetaKeV: 580,
     notes: "0.95 W/g thermal. Soviet lighthouse RTGs. Abundant fission product. Bone-seeking fallout isotope.",
   },
@@ -58,14 +61,14 @@ const isotopes = [
     id: "pu238", name: "Plutonium-238", symbol: "\u00b2\u00b3\u2078Pu", halfLifeYears: 87.7,
     atomicMass: 238, decayType: "\u03b1",
     shielding: "Alpha stopped by paper \u2014 lethal if inhaled", dangerLevel: 4,
-    color: "#ef4444", efficiency: 0.06, isRTG: true, thermalWPerGram: 0.57,
+    color: "#ff5656", efficiency: 0.06, isRTG: true, thermalWPerGram: 0.57,
     notes: "Mars rovers & Voyager. 0.57 W/g thermal. US produces ~1.5 kg/year. Very expensive.",
   },
   {
     id: "po210", name: "Polonium-210", symbol: "\u00b2\u00b9\u2070Po", halfLifeYears: 0.379,
     atomicMass: 210, decayType: "\u03b1",
     shielding: "Alpha stopped by paper \u2014 intensely radioactive", dangerLevel: 4,
-    color: "#ff2d55", efficiency: 0.06, isRTG: true, thermalWPerGram: 140,
+    color: "#ff4068", efficiency: 0.06, isRTG: true, thermalWPerGram: 140,
     notes: "~140 W/g. Glows red-hot. Soviet Lunokhod rovers. Dead in ~2 years. Litvinenko assassination (2006).",
   },
 ];
@@ -169,7 +172,7 @@ function fmtN(n) {
 }
 
 function DangerBar({ level }) {
-  const c = ["", "#4ade80", "#c4b5fd", "#fb923c", "#f87171"];
+  const c = ["", "#58f294", "#d4c8ff", "#ffa450", "#ff8585"];
   const l = ["", "Minimal", "Moderate", "High", "Extreme"];
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
@@ -196,14 +199,14 @@ function InfoTip({ text }) {
         display: "inline-flex", alignItems: "center", justifyContent: "center",
         width: 12, height: 12, borderRadius: "50%",
         background: open ? "rgba(255,255,255,0.1)" : "rgba(255,255,255,0.04)",
-        color: open ? "#8a9ab0" : "#3a4e5e", fontSize: 7, fontWeight: 800,
+        color: open ? "#a0b8cc" : "#3a4e5e", fontSize: 7, fontWeight: 800,
         cursor: "pointer", userSelect: "none",
       }}>?</span>
       {open && <div style={{
         position: "absolute", bottom: 18, left: "50%", transform: "translateX(-50%)",
         width: 200, padding: "8px 10px", borderRadius: 6,
-        background: "#151e2d", border: "1px solid rgba(100,140,180,0.15)",
-        fontSize: 9, lineHeight: 1.55, color: "#7a8ea0", zIndex: 20,
+        background: "#0c1420", border: "1px solid rgba(100,140,180,0.15)",
+        fontSize: 9, lineHeight: 1.55, color: "#90a8be", zIndex: 20,
         boxShadow: "0 6px 20px rgba(0,0,0,0.5)",
       }}>{text}</div>}
     </span>
@@ -213,7 +216,7 @@ function InfoTip({ text }) {
 function Pip({ on }) {
   return <span style={{
     display: "inline-block", width: 6, height: 6, borderRadius: "50%", flexShrink: 0,
-    background: on ? "#4ade80" : "rgba(255,255,255,0.04)",
+    background: on ? "#58f294" : "rgba(255,255,255,0.04)",
     border: on ? "1px solid rgba(74,222,128,0.25)" : "1px solid rgba(255,255,255,0.03)",
   }} />;
 }
@@ -264,12 +267,12 @@ function MassSlider({ grams, onChange }) {
   return (
     <div style={{ marginBottom: 18 }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 6 }}>
-        <div style={{ fontSize: 9, color: "#3e5060", fontWeight: 600, letterSpacing: "0.1em" }}>MASS</div>
+        <div style={{ fontSize: 9, color: "#4a6478", fontWeight: 600, letterSpacing: "0.1em" }}>MASS</div>
         <div>
-          <span style={{ fontSize: 16, fontWeight: 800, color: "#8a9ab0", letterSpacing: "-0.02em" }}>
+          <span style={{ fontSize: 16, fontWeight: 800, color: "#a0b8cc", letterSpacing: "-0.02em" }}>
             {formatMass(grams)}
           </span>
-          <span style={{ fontSize: 9, color: "#3e5060", marginLeft: 8, fontStyle: "italic" }}>
+          <span style={{ fontSize: 9, color: "#4a6478", marginLeft: 8, fontStyle: "italic" }}>
             {"\u2248"} {massRef.label}
           </span>
         </div>
@@ -296,14 +299,14 @@ function MassSlider({ grams, onChange }) {
           return (
             <div key={t.g} style={{ position: "absolute", left: `${tp}%`, top: 8 }}>
               <div style={{ width: 1, height: 12, background: "rgba(255,255,255,0.06)", marginLeft: -0.5 }} />
-              <div style={{ fontSize: 7, color: "#2a3a4a", textAlign: "center", marginTop: 1, marginLeft: -14, width: 28 }}>{t.label}</div>
+              <div style={{ fontSize: 7, color: "#324458", textAlign: "center", marginTop: 1, marginLeft: -14, width: 28 }}>{t.label}</div>
             </div>
           );
         })}
         <div style={{
           position: "absolute", left: `${pct}%`, top: 6,
           width: 16, height: 16, borderRadius: "50%",
-          background: "#8a9ab0", border: "2px solid #080c14",
+          background: "#a0b8cc", border: "2px solid #020408",
           transform: "translateX(-50%)",
           boxShadow: dragging ? "0 0 10px rgba(138,154,176,0.3)" : "0 0 4px rgba(138,154,176,0.15)",
           transition: dragging ? "none" : "left 0.15s ease, box-shadow 0.2s",
@@ -341,24 +344,24 @@ function App() {
 
   return (
     <div style={{
-      background: "#080c14", minHeight: "100vh",
+      background: "#020408", minHeight: "100vh",
       display: "flex", flexDirection: "column", alignItems: "center",
       padding: "24px 16px",
       fontFamily: "'JetBrains Mono', 'SF Mono', 'Fira Code', monospace",
-      color: "#b8c8d8",
+      color: "#d0dce8",
     }}>
       <div style={{ maxWidth: 640, width: "100%" }}>
 
         <div style={{ textAlign: "center", marginBottom: 24 }}>
-          <h1 style={{ fontSize: 14, fontWeight: 700, color: "#dce8f4", letterSpacing: "0.1em", textTransform: "uppercase", margin: "0 0 3px 0" }}>
+          <h1 style={{ fontSize: 14, fontWeight: 700, color: "#eaf2fc", letterSpacing: "0.1em", textTransform: "uppercase", margin: "0 0 3px 0" }}>
             Isotope Power Explorer
           </h1>
-          <p style={{ fontSize: 9, color: "#3e5060", margin: 0, letterSpacing: "0.05em", fontStyle: "italic" }}>
+          <p style={{ fontSize: 9, color: "#4a6478", margin: 0, letterSpacing: "0.05em", fontStyle: "italic" }}>
             electricity from atoms falling apart; no reactors, just decay
           </p>
         </div>
 
-        <div style={{ marginBottom: 4, fontSize: 9, color: "#3e5060", fontWeight: 600, letterSpacing: "0.1em" }}>ISOTOPE</div>
+        <div style={{ marginBottom: 4, fontSize: 9, color: "#4a6478", fontWeight: 600, letterSpacing: "0.1em" }}>ISOTOPE</div>
         <div style={{ display: "flex", gap: 4, marginBottom: 16, flexWrap: "wrap" }}>
           {isotopes.map((i2, i) => (
             <button key={i2.id} onClick={() => setIsoIdx(i)} style={{
@@ -366,7 +369,7 @@ function App() {
               fontFamily: "inherit", cursor: "pointer", transition: "all 0.15s",
               border: isoIdx === i ? `1px solid ${i2.color}55` : "1px solid rgba(80,110,140,0.08)",
               background: isoIdx === i ? `${i2.color}12` : "rgba(255,255,255,0.01)",
-              color: isoIdx === i ? i2.color : "#3e5060",
+              color: isoIdx === i ? i2.color : "#4a6478",
             }}>{i2.symbol}</button>
           ))}
         </div>
@@ -381,18 +384,18 @@ function App() {
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 5 }}>
             <div>
               <span style={{ fontSize: 14, fontWeight: 800, color: iso.color }}>{iso.symbol}</span>
-              <span style={{ fontSize: 10, color: "#5a6e80", marginLeft: 7 }}>{iso.name}</span>
+              <span style={{ fontSize: 10, color: "#6a8298", marginLeft: 7 }}>{iso.name}</span>
             </div>
             <div style={{ textAlign: "right" }}>
-              <div style={{ fontSize: 8, color: "#3e5060" }}>Half-life</div>
-              <div style={{ fontSize: 12, fontWeight: 700, color: "#b8c8d8" }}>
+              <div style={{ fontSize: 8, color: "#4a6478" }}>Half-life</div>
+              <div style={{ fontSize: 12, fontWeight: 700, color: "#d0dce8" }}>
                 {iso.halfLifeYears >= 1 ? `${iso.halfLifeYears.toLocaleString()} yr` : `${Math.round(iso.halfLifeYears * 365)} days`}
               </div>
             </div>
           </div>
-          <div style={{ fontSize: 8, color: "#3e5060", marginBottom: 3 }}>{iso.decayType} {"\u00b7"} {iso.shielding}</div>
+          <div style={{ fontSize: 8, color: "#4a6478", marginBottom: 3 }}>{iso.decayType} {"\u00b7"} {iso.shielding}</div>
           <DangerBar level={iso.dangerLevel} />
-          <div style={{ fontSize: 8, color: "#344050", marginTop: 5, lineHeight: 1.5 }}>{iso.notes}</div>
+          <div style={{ fontSize: 8, color: "#3e4e60", marginTop: 5, lineHeight: 1.5 }}>{iso.notes}</div>
         </div>
 
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 5, marginBottom: 12 }}>
@@ -403,7 +406,7 @@ function App() {
             { label: "After 50 years", val: pctRem < 0.001 ? "\u2248 0" : fmtP(data.powerAt50yrs), col: `${iso.color}88`,
               sub: pctRem < 0.001 ? "Fully depleted" : `${pctRem.toFixed(1)}% remaining`,
               tip: "Power after 50 years of decay. Short half-life isotopes will be fully depleted." },
-            { label: "Lifetime elec. energy", val: fmtE(data.totalElectricalEnergyKWh), col: "#fbbf24",
+            { label: "Lifetime elec. energy", val: fmtE(data.totalElectricalEnergyKWh), col: "#ffcc38",
               sub: (() => {
                 const kwh = data.totalElectricalEnergyKWh;
                 const cargoShipRefuel = 57000000;
@@ -416,7 +419,7 @@ function App() {
                 return `\u2248 ${fmtN(kwh / phoneCharge)} phone charges`;
               })(),
               tip: "Total electricity extracted over the full decay lifetime, integrating the exponential curve \u00d7 conversion efficiency. What you actually get." },
-            { label: "Total decay energy", val: fmtE(data.totalThermalEnergyKWh), col: "#fbbf2455",
+            { label: "Total decay energy", val: fmtE(data.totalThermalEnergyKWh), col: "#ffcc3855",
               sub: `${Math.round(iso.efficiency * 100)}% \u2192 electricity`,
               tip: "Total energy released by decay itself (mostly heat). Only the efficiency % becomes electricity \u2014 the rest is waste heat." },
           ].map((c, i) => (
@@ -424,12 +427,12 @@ function App() {
               background: "rgba(255,255,255,0.018)", borderRadius: 7,
               padding: "10px 11px", border: "1px solid rgba(80,110,140,0.05)",
             }}>
-              <div style={{ fontSize: 7, color: "#3e5060", marginBottom: 2, display: "flex", alignItems: "center" }}>
-                {c.label}{c.sub2 && <span style={{ color: "#2a3a4a", marginLeft: 3 }}>{c.sub2}</span>}
+              <div style={{ fontSize: 7, color: "#4a6478", marginBottom: 2, display: "flex", alignItems: "center" }}>
+                {c.label}{c.sub2 && <span style={{ color: "#324458", marginLeft: 3 }}>{c.sub2}</span>}
                 <InfoTip text={c.tip} />
               </div>
               <div style={{ fontSize: 16, fontWeight: 800, color: c.col, letterSpacing: "-0.02em" }}>{c.val}</div>
-              <div style={{ fontSize: 7, color: "#344050", marginTop: 1 }}>{c.sub}</div>
+              <div style={{ fontSize: 7, color: "#3e4e60", marginTop: 1 }}>{c.sub}</div>
             </div>
           ))}
         </div>
@@ -439,7 +442,7 @@ function App() {
           padding: "10px 12px", marginBottom: 12,
           border: "1px solid rgba(80,110,140,0.05)",
         }}>
-          <div style={{ fontSize: 8, color: "#3e5060", fontWeight: 600, marginBottom: 7, letterSpacing: "0.08em" }}>CONTINUOUS POWER</div>
+          <div style={{ fontSize: 8, color: "#4a6478", fontWeight: 600, marginBottom: 7, letterSpacing: "0.08em" }}>CONTINUOUS POWER</div>
           {capabilities.map((c, i) => {
             const on = data.electricalPowerW >= c.t;
             return (
@@ -448,8 +451,8 @@ function App() {
                 opacity: on ? 1 : 0.2, transition: "opacity 0.25s",
               }}>
                 <Pip on={on} />
-                <span style={{ fontSize: 9, color: on ? "#b8c8d8" : "#2a3a4a", flex: 1 }}>{c.label}</span>
-                <span style={{ fontSize: 8, color: on ? "#3e5060" : "#1a2a3a", fontWeight: 600 }}>{c.p}</span>
+                <span style={{ fontSize: 9, color: on ? "#d0dce8" : "#324458", flex: 1 }}>{c.label}</span>
+                <span style={{ fontSize: 8, color: on ? "#4a6478" : "#223242", fontWeight: 600 }}>{c.p}</span>
               </div>
             );
           })}
@@ -460,7 +463,7 @@ function App() {
           padding: "10px 12px", marginBottom: 12,
           border: "1px solid rgba(80,110,140,0.05)",
         }}>
-          <div style={{ fontSize: 8, color: "#3e5060", fontWeight: 600, marginBottom: 7, letterSpacing: "0.08em" }}>
+          <div style={{ fontSize: 8, color: "#4a6478", fontWeight: 600, marginBottom: 7, letterSpacing: "0.08em" }}>
             ALL ISOTOPES AT {formatMass(grams).toUpperCase()}
           </div>
           {cross.sort((a, b) => b.d.electricalPowerW - a.d.electricalPowerW).map(item => {
@@ -480,17 +483,17 @@ function App() {
                     background: `linear-gradient(90deg, ${item.color}18, ${item.color}77)`,
                     borderRadius: 3,
                   }} />
-                  <div style={{ position: "absolute", right: 4, top: 1.5, fontSize: 8, color: "#7a8ea0", fontWeight: 600 }}>
+                  <div style={{ position: "absolute", right: 4, top: 1.5, fontSize: 8, color: "#90a8be", fontWeight: 600 }}>
                     {fmtP(item.d.electricalPowerW)}
                   </div>
                 </div>
-                <div style={{ width: 44, fontSize: 7, color: "#2a3a4a", textAlign: "right", flexShrink: 0 }}>
+                <div style={{ width: 44, fontSize: 7, color: "#324458", textAlign: "right", flexShrink: 0 }}>
                   {item.halfLifeYears >= 1 ? `${item.halfLifeYears.toLocaleString()}y` : `${Math.round(item.halfLifeYears * 365)}d`}
                 </div>
               </div>
             );
           })}
-          <div style={{ fontSize: 7, color: "#222e3a", marginTop: 5 }}>Log scale {"\u00b7"} {"\u00b2\u00b9\u2070"}Po {"\u2192"} {"\u00b9\u2074"}C spans ~10 orders of magnitude</div>
+          <div style={{ fontSize: 7, color: "#2a3848", marginTop: 5 }}>Log scale {"\u00b7"} {"\u00b2\u00b9\u2070"}Po {"\u2192"} {"\u00b9\u2074"}C spans ~10 orders of magnitude</div>
         </div>
 
         <div style={{
@@ -498,7 +501,7 @@ function App() {
           padding: "10px 12px", marginBottom: 12,
           border: "1px solid rgba(80,110,140,0.05)",
         }}>
-          <div style={{ fontSize: 8, color: "#3e5060", fontWeight: 600, marginBottom: 7, letterSpacing: "0.08em" }}>THERMAL W/g</div>
+          <div style={{ fontSize: 8, color: "#4a6478", fontWeight: 600, marginBottom: 7, letterSpacing: "0.08em" }}>THERMAL W/g</div>
           {[...isotopes].map(i2 => ({ ...i2, wpg: calcProps(i2, 1).thermalPowerW }))
             .sort((a, b) => b.wpg - a.wpg)
             .map(item => {
@@ -510,7 +513,7 @@ function App() {
                   <div style={{ width: 34, fontSize: 8, color: item.color, fontWeight: sel ? 800 : 600, textAlign: "right", flexShrink: 0 }}>{item.symbol}</div>
                   <div style={{ flex: 1, height: 14, background: "rgba(255,255,255,0.02)", borderRadius: 3, overflow: "hidden", position: "relative", border: sel ? `1px solid ${item.color}25` : "1px solid transparent" }}>
                     <div style={{ width: `${Math.max(p, 0.5)}%`, height: "100%", background: `linear-gradient(90deg, ${item.color}18, ${item.color}77)`, borderRadius: 3 }} />
-                    <div style={{ position: "absolute", right: 4, top: 1.5, fontSize: 8, color: "#7a8ea0", fontWeight: 600 }}>
+                    <div style={{ position: "absolute", right: 4, top: 1.5, fontSize: 8, color: "#90a8be", fontWeight: 600 }}>
                       {item.wpg >= 1 ? `${item.wpg.toFixed(1)} W/g` : item.wpg >= 1e-3 ? `${(item.wpg*1e3).toFixed(1)} mW/g` : `${(item.wpg*1e6).toFixed(2)} \u00b5W/g`}
                     </div>
                   </div>
@@ -522,12 +525,12 @@ function App() {
         <div style={{
           padding: "9px 12px", background: "rgba(255,255,255,0.012)", borderRadius: 6,
           border: "1px solid rgba(80,110,140,0.05)",
-          fontSize: 8, lineHeight: 1.65, color: "#344050",
+          fontSize: 8, lineHeight: 1.65, color: "#3e4e60",
         }}>
-          <span style={{ color: "#5a6e80", fontWeight: 700 }}>The tradeoff:</span>{" "}
+          <span style={{ color: "#6a8298", fontWeight: 700 }}>The tradeoff:</span>{" "}
           safety {"\u2194"} power {"\u2194"} longevity {"\u2014"} pick two.{" "}
-          <span style={{ color: "#22d3ee" }}>{"\u00b9\u2074"}C</span> lasts millennia but barely trickles.{" "}
-          <span style={{ color: "#ff2d55" }}>{"\u00b2\u00b9\u2070"}Po</span> produces 140 W/g but kills in micrograms and is gone in months.
+          <span style={{ color: "#30e8ff" }}>{"\u00b9\u2074"}C</span> lasts millennia but barely trickles.{" "}
+          <span style={{ color: "#ff4068" }}>{"\u00b2\u00b9\u2070"}Po</span> produces 140 W/g but kills in micrograms and is gone in months.
         </div>
       </div>
     </div>
