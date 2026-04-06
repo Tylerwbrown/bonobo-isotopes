@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>U.S. Gas Prices: 5-Year History & War Projections</title>
+  <meta name="description" content="Interactive chart of U.S. gas prices from 2021–2027 with projection scenarios based on the Iran war and Strait of Hormuz closure." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@300;400;600;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #0a0a0f; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/recharts/2.12.7/Recharts.min.js"></script>
+  <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+
+  <script type="text/babel">
+    const { useState, useMemo } = React;
+    const {
+      LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip,
+      ReferenceLine, ReferenceArea, ResponsiveContainer
+    } = Recharts;
+
+    // Historical EIA monthly data (US Regular All Formulations, $/gal)
+    const historicalData = [
+      // 2021
+      { month: "2021-01", price: 2.334 }, { month: "2021-02", price: 2.501 },
+      { month: "2021-03", price: 2.810 }, { month: "2021-04", price: 2.858 },
+      { month: "2021-05", price: 2.985 }, { month: "2021-06", price: 3.064 },
+      { month: "2021-07", price: 3.136 }, { month: "2021-08", price: 3.158 },
+      { month: "2021-09", price: 3.175 }, { month: "2021-10", price: 3.291 },
+      { month: "2021-11", price: 3.395 }, { month: "2021-12", price: 3.307 },
+      // 2022
+      { month: "2022-01", price: 3.315 }, { month: "2022-02", price: 3.517 },
+      { month: "2022-03", price: 4.222 }, { month: "2022-04", price: 4.109 },
+      { month: "2022-05", price: 4.444 }, { month: "2022-06", price: 4.929 },
+      { month: "2022-07", price: 4.559 }, { month: "2022-08", price: 3.975 },
+      { month: "2022-09", price: 3.700 }, { month: "2022-10", price: 3.815 },
+      { month: "2022-11", price: 3.685 }, { month: "2022-12", price: 3.210 },
+      // 2023
+      { month: "2023-01", price: 3.339 }, { month: "2023-02", price: 3.389 },
+      { month: "2023-03", price: 3.422 }, { month: "2023-04", price: 3.603 },
+      { month: "2023-05", price: 3.555 }, { month: "2023-06", price: 3.571 },
+      { month: "2023-07", price: 3.597 }, { month: "2023-08", price: 3.840 },
+      { month: "2023-09", price: 3.836 }, { month: "2023-10", price: 3.613 },
+      { month: "2023-11", price: 3.318 }, { month: "2023-12", price: 3.134 },
+      // 2024
+      { month: "2024-01", price: 3.075 }, { month: "2024-02", price: 3.212 },
+      { month: "2024-03", price: 3.426 }, { month: "2024-04", price: 3.611 },
+      { month: "2024-05", price: 3.603 }, { month: "2024-06", price: 3.455 },
+      { month: "2024-07", price: 3.484 }, { month: "2024-08", price: 3.389 },
+      { month: "2024-09", price: 3.214 }, { month: "2024-10", price: 3.137 },
+      { month: "2024-11", price: 3.053 }, { month: "2024-12", price: 3.018 },
+      // 2025
+      { month: "2025-01", price: 3.076 }, { month: "2025-02", price: 3.121 },
+      { month: "2025-03", price: 3.096 }, { month: "2025-04", price: 3.171 },
+      { month: "2025-05", price: 3.150 }, { month: "2025-06", price: 3.150 },
+      { month: "2025-07", price: 3.125 }, { month: "2025-08", price: 3.133 },
+      { month: "2025-09", price: 3.166 }, { month: "2025-10", price: 3.060 },
+      { month: "2025-11", price: 3.050 }, { month: "2025-12", price: 2.894 },
+      // 2026 actual
+      { month: "2026-01", price: 2.809 }, { month: "2026-02", price: 2.908 },
+      { month: "2026-03", price: 4.10 },
+    ];
+
+    const scenarios = {
+      quickResolution: {
+        name: "Quick Resolution",
+        description: "Hormuz reopens mid-April, ceasefire by May. EIA base case.",
+        color: "#22c55e",
+        data: [
+          { month: "2026-04", price: 3.90 }, { month: "2026-05", price: 3.60 },
+          { month: "2026-06", price: 3.40 }, { month: "2026-07", price: 3.25 },
+          { month: "2026-08", price: 3.15 }, { month: "2026-09", price: 3.10 },
+          { month: "2026-10", price: 3.00 }, { month: "2026-11", price: 2.95 },
+          { month: "2026-12", price: 2.90 }, { month: "2027-01", price: 2.85 },
+          { month: "2027-02", price: 2.90 }, { month: "2027-03", price: 3.00 },
+        ],
+      },
+      prolonged: {
+        name: "Prolonged Conflict",
+        description: "Hormuz partially reopens by summer, war winds down Q3. Goldman base case.",
+        color: "#f59e0b",
+        data: [
+          { month: "2026-04", price: 4.15 }, { month: "2026-05", price: 4.40 },
+          { month: "2026-06", price: 4.20 }, { month: "2026-07", price: 3.90 },
+          { month: "2026-08", price: 3.70 }, { month: "2026-09", price: 3.50 },
+          { month: "2026-10", price: 3.35 }, { month: "2026-11", price: 3.25 },
+          { month: "2026-12", price: 3.18 }, { month: "2027-01", price: 3.10 },
+          { month: "2027-02", price: 3.15 }, { month: "2027-03", price: 3.20 },
+        ],
+      },
+      escalation: {
+        name: "Major Escalation",
+        description: "Hormuz stays closed through summer, ground ops or broader regional war.",
+        color: "#ef4444",
+        data: [
+          { month: "2026-04", price: 4.50 }, { month: "2026-05", price: 5.00 },
+          { month: "2026-06", price: 5.50 }, { month: "2026-07", price: 5.80 },
+          { month: "2026-08", price: 5.50 }, { month: "2026-09", price: 5.20 },
+          { month: "2026-10", price: 4.90 }, { month: "2026-11", price: 4.70 },
+          { month: "2026-12", price: 4.50 }, { month: "2027-01", price: 4.30 },
+          { month: "2027-02", price: 4.20 }, { month: "2027-03", price: 4.10 },
+        ],
+      },
+      walkAway: {
+        name: "US Walks Away",
+        description: "US exits without reopening Hormuz. Iran controls the strait long-term.",
+        color: "#a855f7",
+        data: [
+          { month: "2026-04", price: 4.30 }, { month: "2026-05", price: 4.60 },
+          { month: "2026-06", price: 4.80 }, { month: "2026-07", price: 4.90 },
+          { month: "2026-08", price: 5.10 }, { month: "2026-09", price: 5.30 },
+          { month: "2026-10", price: 5.50 }, { month: "2026-11", price: 5.40 },
+          { month: "2026-12", price: 5.20 }, { month: "2027-01", price: 5.00 },
+          { month: "2027-02", price: 4.80 }, { month: "2027-03", price: 4.60 },
+        ],
+      },
+    };
+
+    const allMonths = [
+      ...historicalData.map(d => d.month),
+      ...scenarios.quickResolution.data.map(d => d.month),
+    ];
+    const uniqueMonths = [...new Set(allMonths)];
+
+    const formatMonth = (m) => {
+      const [y, mo] = m.split("-");
+      const months = ["","Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+      return months[parseInt(mo)] + " '" + y.slice(2);
+    };
+
+    const CustomTooltip = ({ active, payload, label }) => {
+      if (!active || !payload || !payload.length) return null;
+      return (
+        <div style={{
+          background: "rgba(15, 15, 20, 0.95)",
+          border: "1px solid rgba(255,255,255,0.1)",
+          borderRadius: 8, padding: "10px 14px",
+          fontFamily: "'JetBrains Mono', monospace", fontSize: 12,
+        }}>
+          <div style={{ color: "#94a3b8", marginBottom: 6, fontWeight: 600 }}>{formatMonth(label)}</div>
+          {payload.map((p, i) => (
+            p.value != null ? (
+              <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 3 }}>
+                <div style={{ width: 8, height: 8, borderRadius: "50%", background: p.color, flexShrink: 0 }} />
+                <span style={{ color: "#cbd5e1" }}>{p.name}:</span>
+                <span style={{ color: p.color, fontWeight: 700 }}>{"$" + p.value.toFixed(2)}</span>
+              </div>
+            ) : null
+          ))}
+        </div>
+      );
+    };
+
+    function GasPriceChart() {
+      const [activeScenarios, setActiveScenarios] = useState({
+        quickResolution: true, prolonged: true, escalation: true, walkAway: true,
+      });
+
+      const chartData = useMemo(() => {
+        return uniqueMonths.map((month) => {
+          const hist = historicalData.find(d => d.month === month);
+          const entry = { month, historical: hist ? hist.price : null };
+          Object.entries(scenarios).forEach(([key, scenario]) => {
+            const proj = scenario.data.find(d => d.month === month);
+            entry[key] = proj ? proj.price : null;
+          });
+          if (month === "2026-03") {
+            Object.keys(scenarios).forEach(key => {
+              entry[key] = hist ? hist.price : null;
+            });
+          }
+          return entry;
+        });
+      }, []);
+
+      const toggle = (key) => {
+        setActiveScenarios(prev => ({ ...prev, [key]: !prev[key] }));
+      };
+
+      return (
+        <div style={{
+          background: "linear-gradient(145deg, #0a0a0f 0%, #111118 50%, #0d0d14 100%)",
+          minHeight: "100vh", padding: "24px 16px",
+          fontFamily: "'Libre Franklin', 'Helvetica Neue', sans-serif", color: "#e2e8f0",
+        }}>
+          <div style={{ maxWidth: 900, margin: "0 auto" }}>
+            {/* Header */}
+            <div style={{ marginBottom: 28 }}>
+              <div style={{
+                display: "inline-block",
+                background: "linear-gradient(135deg, #ef4444, #f97316)",
+                padding: "3px 10px", borderRadius: 4, fontSize: 10,
+                fontWeight: 800, letterSpacing: 2, textTransform: "uppercase",
+                color: "#fff", marginBottom: 10,
+              }}>LIVE CRISIS</div>
+              <h1 style={{
+                fontFamily: "'Libre Franklin', sans-serif", fontSize: 28,
+                fontWeight: 800, lineHeight: 1.15, margin: "0 0 6px 0",
+                background: "linear-gradient(135deg, #f1f5f9, #94a3b8)",
+                WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
+              }}>U.S. Gas Prices: 5-Year History &amp; War Projections</h1>
+              <p style={{
+                color: "#64748b", fontSize: 13, margin: 0, lineHeight: 1.5,
+                fontFamily: "'JetBrains Mono', monospace",
+              }}>Regular unleaded, national avg · Source: EIA + analyst forecasts</p>
+            </div>
+
+            {/* Stats */}
+            <div style={{ display: "flex", gap: 12, marginBottom: 20, flexWrap: "wrap" }}>
+              {[
+                { label: "TODAY (APR 5)", value: "$4.10", sub: "+$1.20 vs Feb · +41%", accent: "#ef4444", valColor: "#fca5a5" },
+                { label: "PRE-WAR LOW", value: "$2.81", sub: "Jan 2026", accent: "#94a3b8", valColor: "#cbd5e1" },
+                { label: "2022 PEAK", value: "$4.93", sub: "Jun 2022", accent: "#f97316", valColor: "#fdba74" },
+              ].map((s, i) => (
+                <div key={i} style={{
+                  background: s.accent + "14", border: "1px solid " + s.accent + "40",
+                  borderRadius: 10, padding: "12px 16px", flex: 1, minWidth: 140,
+                }}>
+                  <div style={{ fontSize: 10, color: s.accent, fontWeight: 700, letterSpacing: 1, textTransform: "uppercase", fontFamily: "'JetBrains Mono', monospace" }}>{s.label}</div>
+                  <div style={{ fontSize: 28, fontWeight: 800, color: s.valColor, fontFamily: "'JetBrains Mono', monospace" }}>{s.value}</div>
+                  <div style={{ fontSize: 11, color: "#94a3b8" }}>{s.sub}</div>
+                </div>
+              ))}
+            </div>
+
+            {/* Chart */}
+            <div style={{
+              background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)",
+              borderRadius: 12, padding: "16px 4px 8px 0", marginBottom: 16,
+            }}>
+              <ResponsiveContainer width="100%" height={380}>
+                <LineChart data={chartData} margin={{ top: 10, right: 20, left: 0, bottom: 5 }}>
+                  <CartesianGrid stroke="rgba(148,163,184,0.06)" strokeDasharray="3 3" />
+                  <XAxis dataKey="month" tickFormatter={formatMonth}
+                    tick={{ fill: "#475569", fontSize: 10, fontFamily: "'JetBrains Mono', monospace" }}
+                    interval={5} axisLine={{ stroke: "rgba(148,163,184,0.1)" }} tickLine={false} />
+                  <YAxis domain={[1.5, 6.5]} tickFormatter={(v) => "$" + v.toFixed(2)}
+                    tick={{ fill: "#475569", fontSize: 10, fontFamily: "'JetBrains Mono', monospace" }}
+                    axisLine={false} tickLine={false} width={55} />
+                  <Tooltip content={<CustomTooltip />} />
+                  <ReferenceArea x1="2026-03" x2="2027-03" fill="rgba(239,68,68,0.04)" stroke="none" />
+                  <ReferenceLine x="2026-03" stroke="#ef4444" strokeDasharray="4 4" strokeWidth={1.5}
+                    label={{ value: "WAR BEGINS", position: "top", fill: "#ef4444", fontSize: 9, fontWeight: 700, fontFamily: "'JetBrains Mono', monospace" }} />
+                  <ReferenceLine x="2022-06" stroke="rgba(249,115,22,0.4)" strokeDasharray="3 3" strokeWidth={1} />
+                  <Line type="monotone" dataKey="historical" name="Historical" stroke="#94a3b8"
+                    strokeWidth={2.5} dot={false} activeDot={{ r: 4, fill: "#94a3b8" }} />
+                  {Object.entries(scenarios).map(([key, scenario]) =>
+                    activeScenarios[key] ? (
+                      <Line key={key} type="monotone" dataKey={key} name={scenario.name}
+                        stroke={scenario.color} strokeWidth={2} strokeDasharray="6 3"
+                        dot={false} activeDot={{ r: 4, fill: scenario.color }} connectNulls={false} />
+                    ) : null
+                  )}
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+
+            {/* Scenario toggles */}
+            <div style={{ marginBottom: 20 }}>
+              <div style={{
+                fontSize: 10, color: "#64748b", fontWeight: 700, letterSpacing: 1.5,
+                textTransform: "uppercase", marginBottom: 10, fontFamily: "'JetBrains Mono', monospace",
+              }}>PROJECTION SCENARIOS — TAP TO TOGGLE</div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                {Object.entries(scenarios).map(([key, scenario]) => (
+                  <button key={key} onClick={() => toggle(key)} style={{
+                    display: "flex", alignItems: "flex-start", gap: 10,
+                    padding: "10px 14px", borderRadius: 8,
+                    border: "1px solid " + (activeScenarios[key] ? scenario.color + "40" : "rgba(255,255,255,0.06)"),
+                    background: activeScenarios[key] ? scenario.color + "0a" : "transparent",
+                    cursor: "pointer", textAlign: "left", transition: "all 0.2s",
+                    opacity: activeScenarios[key] ? 1 : 0.45,
+                  }}>
+                    <div style={{
+                      width: 14, height: 14, borderRadius: 4,
+                      border: "2px solid " + scenario.color,
+                      background: activeScenarios[key] ? scenario.color : "transparent",
+                      flexShrink: 0, marginTop: 2, display: "flex",
+                      alignItems: "center", justifyContent: "center",
+                    }}>
+                      {activeScenarios[key] && (
+                        <svg width="8" height="8" viewBox="0 0 10 10"><path d="M2 5l2.5 2.5L8 3" stroke="#fff" strokeWidth="2" fill="none" /></svg>
+                      )}
+                    </div>
+                    <div>
+                      <div style={{ color: scenario.color, fontWeight: 700, fontSize: 13, fontFamily: "'Libre Franklin', sans-serif" }}>{scenario.name}</div>
+                      <div style={{ color: "#64748b", fontSize: 11, lineHeight: 1.4, marginTop: 2 }}>{scenario.description}</div>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Key events */}
+            <div style={{
+              background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)",
+              borderRadius: 10, padding: 16, marginBottom: 16,
+            }}>
+              <div style={{
+                fontSize: 10, color: "#64748b", fontWeight: 700, letterSpacing: 1.5,
+                textTransform: "uppercase", marginBottom: 12, fontFamily: "'JetBrains Mono', monospace",
+              }}>KEY EVENTS DRIVING PRICES</div>
+              {[
+                { date: "Feb 2022", event: "Russia invades Ukraine → gas hits $4.93 peak in June", color: "#f97316" },
+                { date: "2023–25", event: "Gradual decline as supply normalizes, prices fall to ~$2.90", color: "#22c55e" },
+                { date: "Feb 28, 2026", event: "Operation Epic Fury launches, Hormuz closes", color: "#ef4444" },
+                { date: "Mar 2026", event: "Gas surges $1.20 in weeks, AAA reports $4.10 national avg", color: "#ef4444" },
+                { date: "Apr 2026", event: "EIA projects prices near peak; Hormuz reopening pivotal", color: "#f59e0b" },
+              ].map((item, i) => (
+                <div key={i} style={{ display: "flex", gap: 10, marginBottom: i < 4 ? 10 : 0, alignItems: "flex-start" }}>
+                  <div style={{ width: 6, height: 6, borderRadius: "50%", background: item.color, flexShrink: 0, marginTop: 5 }} />
+                  <div>
+                    <span style={{ color: item.color, fontWeight: 700, fontSize: 11, fontFamily: "'JetBrains Mono', monospace", marginRight: 6 }}>{item.date}</span>
+                    <span style={{ color: "#94a3b8", fontSize: 12 }}>{item.event}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Sources */}
+            <div style={{
+              fontSize: 10, color: "#475569", fontFamily: "'JetBrains Mono', monospace",
+              lineHeight: 1.6, padding: "0 4px",
+            }}>
+              Sources: EIA monthly retail gasoline prices · EIA Short-Term Energy Outlook (Mar 2026) · Goldman Sachs oil forecast (Mar 22) · Oxford Economics · GasBuddy · AAA. Projections are illustrative scenarios based on analyst ranges, not point predictions.
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById("root"));
+    root.render(<GasPriceChart />);
+  </script>
+</body>
+</html>
